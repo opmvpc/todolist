@@ -33,6 +33,19 @@ const ajouter = () => {
 const cocher = () => {
   localStorage.setItem("taches", JSON.stringify(taches.value));
 };
+
+const idTacheASupprimer = ref();
+const nomTacheASupprimer = ref();
+
+const selectTacheASupprimer = (id, nom) => {
+  idTacheASupprimer.value = id;
+  nomTacheASupprimer.value = nom;
+};
+
+const supprimerTache = (nom) => {
+  taches.value = taches.value.filter((tache) => tache.nom !== nom);
+  localStorage.setItem("taches", JSON.stringify(taches.value));
+};
 </script>
 
 <template>
@@ -65,19 +78,74 @@ const cocher = () => {
       </div>
     </form>
     <h2>Liste des tâches</h2>
-    <ul class="list-group mt-3">
-      <li v-for="(tache, index) in taches" class="list-group-item d-flex gap-3">
-        <input
-          v-model="tache.estFait"
-          class="form-check-input"
-          @change="cocher"
-          type="checkbox"
-          :id="'check-' + index"
-        />
-        <label class="form-check-label" :for="`check-${index}`">
-          {{ tache.nom }}
-        </label>
+    <ul class="list-group mt-3" v-if="taches.length > 0">
+      <li
+        v-for="(tache, index) in taches"
+        class="list-group-item d-flex gap-3 align-items-baseline justify-content-between"
+      >
+        <div class="d-flex gap-2">
+          <input
+            v-model="tache.estFait"
+            class="form-check-input"
+            @change="cocher"
+            type="checkbox"
+            :id="'check-' + index"
+          />
+          <label class="form-check-label" :for="`check-${index}`">
+            {{ tache.nom }}
+          </label>
+        </div>
+        <button
+          @click="selectTacheASupprimer(index, tache.nom)"
+          class="btn btn-sm btn-danger"
+          data-bs-toggle="modal"
+          data-bs-target="#delete-modal"
+        >
+          Supprimer
+        </button>
       </li>
     </ul>
+    <p v-else>Il n'y a pas encore de tâche.</p>
+  </div>
+
+  <!-- Modal de suppression -->
+  <div class="modal" tabindex="-1" id="delete-modal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Supprimer une tâche</h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
+        </div>
+        <div class="modal-body">
+          <p>
+            Êtes-vous certain de vouloir supprimer la tâche "{{
+              nomTacheASupprimer
+            }}" ?
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Annuler
+          </button>
+          <button
+            @click="supprimerTache(nomTacheASupprimer)"
+            type="button"
+            class="btn btn-danger"
+            data-bs-dismiss="modal"
+          >
+            Supprimer
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
